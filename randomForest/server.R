@@ -14,11 +14,36 @@ shinyServer(
     })
     
     tree <- reactive({
-      createTree(formula(),traindata())
+      if(input$lowcp){
+        createTree(formula(),traindata(), lowcp=TRUE)
+      } else {
+        createTree(formula(),traindata(), lowcp=FALSE)
+      }
     })
  
+    x <- reactive({
+      x <- subset(traindata(), select=input$independent)
+      is.complete <- which(complete.cases(x))
+      x <- as.data.frame(x[is.complete,], stringsAsFactors = TRUE)
+      ind <- sapply(x, is.character)
+      x[ind] <- lapply(x[ind], factor)
+      x
+    })
+    
+    y <- reactive({
+      x <- subset(traindata(), select=input$independent)
+      is.complete <- which(complete.cases(x))
+      x <- as.data.frame(x[is.complete,], stringsAsFactors = TRUE)
+      ind <- sapply(x, is.character)
+      x[ind] <- lapply(x[ind], factor)
+      y <- subset(traindata(),select=input$dependent)
+      as.factor(as.character(as.matrix(y[is.complete,])))
+    })
+    
     forest <- reactive({
-      createForest(traindata(), input)
+  
+      # create model
+      createForest(x(),y(), trees= input$numtrees)
     })
     
     output$plot_tree <- renderPlot({
@@ -31,12 +56,26 @@ shinyServer(
       print(p)
     }, height=700)
     
+    output$plot_cp <- renderPlot({
+      p <-  plotcp(tree())
+      print(p)
+    }, height=700)
+    
+    output$plot_prune <- renderPlot({
+  
+      tree_pruned <- prune(tree(), cp=input$cp )
+      p <- plotTree(tree_pruned)
+      print(p)
+    }, height=700)
+    
+    
    output$plot_split <- renderPlot({
      p <- plotSplit(tree(), traindata(), input)
      print(p)
      }, height=500)
     
    output$plot_forest <- renderPlot({
+     
      p <- plotForest(forest())
      print(p)
    }, height=500)
@@ -44,6 +83,18 @@ shinyServer(
     output$table <- DT::renderDataTable(
       DT::datatable(traindata(), options = list(pageLength = 25, scrollX = TRUE))
     )
+    
+    output$forest_accuracy = renderPrint({
+       print(forest())
+    })
+
+    output$tree_accuracy = renderPrint({
+      print(printcp(tree()))
+    })
+    
+    output$min_xerror = renderPrint({
+      cat(paste("min xerror:", min(tree()$cptable[,"xerror"]), "\n"))
+    })
     
   }
 )

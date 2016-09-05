@@ -3,10 +3,15 @@
 # createTree: 
 # this function creates decision tree 
 # using "Recursive Partitioning and Regression Trees"
-createTree <- function(formular, traindata){
+createTree <- function(formula, traindata, lowcp=F){
   require(rpart)
-  tree <- rpart(formular,data=traindata, method="class",
-               parms=list(split="information"))
+  if(lowcp){
+    tree <- rpart(formula,data=traindata, method="class",
+                  parms=list(split="information"), control=rpart.control(minsplit=2, minbucket=1, cp=0.001))
+  } else{
+    tree <- rpart(formula,data=traindata, method="class",
+                  parms=list(split="information"))
+  } 
   return(tree)
 }
 
