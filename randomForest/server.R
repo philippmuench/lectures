@@ -41,9 +41,12 @@ shinyServer(
     })
     
     forest <- reactive({
-  
       # create model
       createForest(x(),y(), trees= input$numtrees)
+    })
+    
+    bagged <- reactive({
+      createBagged(x(),y(), trees= input$numtrees)
     })
     
     output$plot_tree <- renderPlot({
@@ -62,7 +65,6 @@ shinyServer(
     }, height=700)
     
     output$plot_prune <- renderPlot({
-  
       tree_pruned <- prune(tree(), cp=input$cp )
       p <- plotTree(tree_pruned)
       print(p)
@@ -75,9 +77,20 @@ shinyServer(
      }, height=500)
     
    output$plot_forest <- renderPlot({
-     
      p <- plotForest(forest())
      print(p)
+   }, height=500)
+   
+   output$compare <- renderPlot({
+  
+     #Compare the OOB error of Bagging vs. Random forests
+     par(lwd=1, font=2)
+     plot(bagged()$err.rate[,1],type = "l", col="red",xlim = c(0,100), ylim = c(0.1,0.4), ylab = "OOB Error", xlab = "Number of trees")
+     par(new=T)
+     plot(forest()$err.rate[,1],,type = "l", col="blue",xlim = c(0,100), ylim = c(0.1,0.4), ylab="", xlab="")
+     legend('topright', c("Bagged CART", "Random Forest"),lty=1, col=c('red', 'blue'), bty='n', cex=.75)
+     par(new=F)
+     
    }, height=500)
    
     output$table <- DT::renderDataTable(

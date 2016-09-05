@@ -81,7 +81,7 @@ conditionalPanel(
                                                 height="auto"), value="map"),
       tabPanel("tree - cp", plotOutput("plot_prune", width="100%", height="auto"),  
                plotOutput("plot_cp", width="100%", height="auto"), value="cp"),
-      tabPanel("ensemble", plotOutput("plot_forest", width="100%", height="auto"), verbatimTextOutput("forest_accuracy"), value="forest")
+      tabPanel("ensemble", plotOutput("plot_forest", width="100%", height="auto"), verbatimTextOutput("forest_accuracy"), plotOutput("compare", width="100%", height="auto"), value="forest")
     
       ,id="tsp"
       )
