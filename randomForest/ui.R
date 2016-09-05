@@ -20,7 +20,7 @@ shinyUI(
                     wellPanel(
                     
 conditionalPanel(
-  condition="input.tsp=='map' | input.tsp=='forest' | input.tsp == 'cp' | input.tsp=='tree'",
+  condition="input.tsp=='map' | input.tsp=='forest' | input.tsp == 'cp' | input.tsp=='tree' | input.tsp=='heatmap'",
   selectInput("dataset", 
               label = "dataset",
               choices = c("Titanic"),
@@ -65,6 +65,11 @@ conditionalPanel(
   helpText(strong("Cross-Validation error")),
   helpText("Root node error * xerror * 100"),
   helpText(textOutput("min_xerror"))
+),
+
+conditionalPanel(
+  condition="input.tsp=='heatmap'", 
+  helpText(strong("probability of individual estimations"))
 )
 
 )),
@@ -76,7 +81,7 @@ conditionalPanel(
       tabPanel("tree", plotOutput("plot_tree", width="100%", height="auto"),
                verbatimTextOutput("tree_accuracy"),  value="tree"),
       tabPanel("tree - heatmap", plotOutput("plot_heat",
-                                            width="100%", height="auto"), value="map"),
+                                            width="100%", height="auto"), value="heatmap"),
       tabPanel("tree - splitpoints", plotOutput("plot_split", width="100%", 
                                                 height="auto"), value="map"),
       tabPanel("tree - cp", plotOutput("plot_prune", width="100%", height="auto"),  
